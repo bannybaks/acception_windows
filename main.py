@@ -16,6 +16,38 @@ RUSULT_MESSAGE = 'Свободное окно с {start} до {stop}'
 TIME_FORMATTER = '%H:%M'
 
 
+def generate_free_windows():
+
+    """Конвертирование временных интервалов из формата строки
+    в формат datetime.
+    """
+
+    pass
+
+
+def generate_time_range():
+
+    """Генерация свободных окон в заданном временном диапазоне."""
+
+    pass
+
+
+def is_time_in_busy_intervals():
+
+    """Генерация интервалов с шагом window_size в заданном временном 
+    диапазоне.
+    """
+
+    pass
+
+
+def is_time_in_busy_intervals():
+
+    """Проверяет, находится ли текущее время в занятых временных интервалах."""
+
+    pass
+
+
 def get_reception_windows(
     *,
     busy_intervals,
@@ -23,6 +55,9 @@ def get_reception_windows(
     work_end,
     window_size
 ):
+
+    """Получение свободных окон в заданном временном диапазоне."""
+
     work_start_convert_dt = datetime.strptime(work_start, '%H:%M')
     work_end_convert_dt = datetime.strptime(work_end, '%H:%M')
     busy_intervals_convert_dt = [
