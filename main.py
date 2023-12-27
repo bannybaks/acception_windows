@@ -38,13 +38,19 @@ def generate_free_windows():
     pass
 
 
-def generate_time_range():
+def generate_time_range(time_work_start, time_work_end, duration_window):
 
     """Генерация интервалов с шагом window_size в заданном временном 
     диапазоне.
     """
 
-    pass
+    return [
+        time_work_start + timedelta(minutes=i) for i in range(
+            0,
+            (time_work_end - time_work_start).seconds // SECONDS_IN_MINUTE,
+            duration_window
+        )
+    ]
 
 
 def is_time_in_busy_intervals():
@@ -123,4 +129,22 @@ if __name__ == '__main__':
         isinstance(i['start'], datetime) and
         isinstance(i['stop'], datetime) 
         for i in convert_busy_intervals(BUSY_INTERVALS_PACK)
+    )
+
+    # Проверка функции генерации 24 окон по 30 минут в промежутке
+    # с 09:00 до 21:00
+    result_generate_intervals = generate_time_range(
+        datetime.strptime(WORK_START, TIME_FORMATTER),
+        datetime.strptime(WORK_END, TIME_FORMATTER),
+        MINUTE_WINDOW_SIZE
+    )
+    expected_count_intervals = (
+        datetime.strptime(
+            WORK_END, TIME_FORMATTER
+        ) - datetime.strptime(WORK_START, TIME_FORMATTER)
+    ).seconds // (SECONDS_IN_MINUTE * MINUTE_WINDOW_SIZE)
+
+    assert len(result_generate_intervals) == expected_count_intervals, (
+        f'Ожидаемое количество временных окон: {expected_count_intervals}. '
+        f'Фактическое количество: {len(result_generate_intervals)}'
     )
