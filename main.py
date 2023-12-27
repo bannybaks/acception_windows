@@ -16,23 +16,30 @@ RUSULT_MESSAGE = 'Свободное окно с {start} до {stop}'
 TIME_FORMATTER = '%H:%M'
 
 
-def generate_free_windows():
+def convert_busy_intervals(busy_intervals):
 
     """Конвертирование временных интервалов из формата строки
     в формат datetime.
     """
 
-    pass
+    return list(
+        map(
+            lambda interval: {
+                'start': datetime.strptime(interval['start'], '%H:%M'),
+                'stop': datetime.strptime(interval['stop'], '%H:%M')
+            }, busy_intervals
+        )
+    )
 
 
-def generate_time_range():
+def generate_free_windows():
 
     """Генерация свободных окон в заданном временном диапазоне."""
 
     pass
 
 
-def is_time_in_busy_intervals():
+def generate_time_range():
 
     """Генерация интервалов с шагом window_size в заданном временном 
     диапазоне.
@@ -110,4 +117,12 @@ if __name__ == '__main__':
                 stop=window['stop']
             )
         )
+    
+    # Проверка функции конвертирования времненных интервалов
+    # в формат datetime
+    assert all(
+        isinstance(i['start'], datetime) and
+        isinstance(i['stop'], datetime) 
+        for i in convert_busy_intervals(BUSY_INTERVALS)
+    )
 
