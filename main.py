@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 
 
-BUSY_INTERVALS = [
-    {'start' : '10:30', 'stop' : '10:50'},
-    {'start' : '18:40', 'stop' : '18:50'},
-    {'start' : '14:40', 'stop' : '15:50'},
-    {'start' : '16:40', 'stop' : '17:20'},
-    {'start' : '20:05', 'stop' : '20:20'}
+BUSY_TIME_START = ('10:30', '18:40', '14:40', '16:40', '20:05')
+BUSY_TIME_STOP = ('10:50', '18:50', '15:50', '17:20', '20:20')
+BUSY_INTERVALS_PACK = [
+    dict(start=start_time, stop=stop_time) 
+    for start_time, stop_time in zip(BUSY_TIME_START, BUSY_TIME_STOP)
 ]
 WORK_START = '09:00'
 WORK_END = '21:00'
@@ -24,10 +23,10 @@ def convert_busy_intervals(busy_intervals):
 
     return list(
         map(
-            lambda interval: {
-                'start': datetime.strptime(interval['start'], '%H:%M'),
-                'stop': datetime.strptime(interval['stop'], '%H:%M')
-            }, busy_intervals
+            lambda interval: dict(
+                start=datetime.strptime(interval['start'], '%H:%M'),
+                stop=datetime.strptime(interval['stop'], '%H:%M')
+            ), busy_intervals
         )
     )
 
@@ -105,7 +104,7 @@ def get_reception_windows(
 
 if __name__ == '__main__':
     free_window_list = get_reception_windows(
-        busy_intervals=BUSY_INTERVALS,
+        busy_intervals=BUSY_INTERVALS_PACK,
         work_start=WORK_START,
         work_end=WORK_END,
         window_size=MINUTE_WINDOW_SIZE
@@ -123,6 +122,5 @@ if __name__ == '__main__':
     assert all(
         isinstance(i['start'], datetime) and
         isinstance(i['stop'], datetime) 
-        for i in convert_busy_intervals(BUSY_INTERVALS)
+        for i in convert_busy_intervals(BUSY_INTERVALS_PACK)
     )
-
