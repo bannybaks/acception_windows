@@ -20,12 +20,12 @@ def convert_busy_intervals(
     busy_intervals: List[Dict[str, str]]
 ) -> List[tuple[datetime, datetime]]:
 
-    """Конвертирование временных интервалов из формата строки
+    """Конвертирование занятых временных интервалов из формата строки
     в формат datetime.
 
     Args:
         busy_intervals (List[Dict[str, str]]):
-            Список временных интервалов в строковом представлении.
+            Список временных интервалов.
     
     Returns:
         List[tuple[datetime, datetime]]:
@@ -49,7 +49,22 @@ def generate_free_windows(
     busy_intervals_convert_dt
 ):
 
-    """Генерация свободных окон в заданном временном диапазоне."""
+    """Генерация свободных окон в заданном временном диапазоне.
+    
+    Args:
+        work_start (datetime):
+            Время начала рабочего дня.
+        work_end (datetime):
+            Время окончания рабочего дня.
+        window_size (int):
+            Длительность свободных окон в минутах.
+        busy_intervals_convert_dt (List[tuple[datetime, datetime]]):
+            Занятые временные интервалы.
+    
+    Returns:
+        List[Dict[str, str]]:
+            Список свободных окон с указанием временных границ.
+    """
 
     return [
         dict(
