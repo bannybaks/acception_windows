@@ -23,19 +23,37 @@ def convert_busy_intervals(busy_intervals):
 
     return list(
         map(
-            lambda interval: dict(
-                start=datetime.strptime(interval['start'], '%H:%M'),
-                stop=datetime.strptime(interval['stop'], '%H:%M')
+            lambda interval: (
+                datetime.strptime(interval['start'], '%H:%M'),
+                datetime.strptime(interval['stop'], '%H:%M')
             ), busy_intervals
         )
     )
 
 
-def generate_free_windows():
+def generate_free_windows(
+    work_start,
+    work_end,
+    window_size,
+    busy_intervals_convert_dt
+):
 
     """Генерация свободных окон в заданном временном диапазоне."""
 
-    pass
+    return [
+        dict(
+            start=current_time.strftime(TIME_FORMATTER),
+            stop=(
+                current_time + timedelta(
+                    minutes=window_size
+                )
+            ).strftime(TIME_FORMATTER)
+        ) for current_time in generate_time_range(
+            work_start, work_end, window_size
+        ) if not is_time_in_busy_intervals(
+            current_time, busy_intervals_convert_dt, window_size
+        )
+    ]
 
 
 def generate_time_range(time_work_start, time_work_end, duration_window):
@@ -53,11 +71,20 @@ def generate_time_range(time_work_start, time_work_end, duration_window):
     ]
 
 
-def is_time_in_busy_intervals():
+def is_time_in_busy_intervals(
+    current_time,
+    busy_intervals_convert_dt,
+    window_size
+):
 
     """Проверяет, находится ли текущее время в занятых временных интервалах."""
-
-    pass
+    
+    return any(
+        start <= current_time < stop
+        or current_time <= start < current_time + timedelta(
+            minutes=window_size
+        ) for start, stop in busy_intervals_convert_dt
+    )
 
 
 def get_reception_windows(
@@ -126,9 +153,8 @@ if __name__ == '__main__':
     # Проверка функции конвертирования времненных интервалов
     # в формат datetime
     assert all(
-        isinstance(i['start'], datetime) and
-        isinstance(i['stop'], datetime) 
-        for i in convert_busy_intervals(BUSY_INTERVALS_PACK)
+        all(isinstance(item, datetime) for item in in_tuple)
+        for in_tuple in convert_busy_intervals(BUSY_INTERVALS_PACK)
     )
 
     # Проверка функции генерации 24 окон по 30 минут в промежутке
@@ -148,3 +174,26 @@ if __name__ == '__main__':
         f'Ожидаемое количество временных окон: {expected_count_intervals}. '
         f'Фактическое количество: {len(result_generate_intervals)}'
     )
+
+    # Проверка функции генерации только свободных окон в промежутке
+    # с 09:00 до 21:00 
+    result_free_windows = generate_free_windows(
+        datetime.strptime(WORK_START, TIME_FORMATTER),
+        datetime.strptime(WORK_END, TIME_FORMATTER),
+        MINUTE_WINDOW_SIZE,
+        convert_busy_intervals(BUSY_INTERVALS_PACK)
+    )
+    for window in result_free_windows:
+        start_time = datetime.strptime(window['start'], TIME_FORMATTER)
+        stop_time = datetime.strptime(window['stop'], TIME_FORMATTER)
+        work_start = datetime.strptime(WORK_START, TIME_FORMATTER)
+        work_end = datetime.strptime(WORK_END, TIME_FORMATTER)
+
+        assert work_start <= start_time <= work_end
+        assert work_start <= stop_time <= work_end
+
+
+        assert not all(
+            start <= start_time < stop or start <= stop_time < stop
+            for start, stop in convert_busy_intervals(BUSY_INTERVALS_PACK)
+        )
