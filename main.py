@@ -116,7 +116,7 @@ def generate_time_range(
 
 def is_time_in_busy_intervals(
     current_time: datetime,
-    busy_intervals_convert_dt: List(Dict[datetime, datetime]),
+    busy_intervals_convert_dt: List[Dict[datetime, datetime]],
     window_size: int
 ) -> bool:
 
@@ -146,59 +146,41 @@ def is_time_in_busy_intervals(
 
 def get_reception_windows(
     *,
-    busy_intervals,
-    work_start,
-    work_end,
-    window_size
-):
+    busy_intervals: List[Dict[str, str]]=BUSY_INTERVALS_PACK,
+    work_start: datetime=datetime.strptime(WORK_START, TIME_FORMATTER),
+    work_end: datetime=datetime.strptime(WORK_END, TIME_FORMATTER),
+    window_size: int=MINUTE_WINDOW_SIZE
+) -> List[Dict[str, str]]:
 
-    """Получение свободных окон в заданном временном диапазоне."""
+    """Получение свободных окон в заданном временном диапазоне.
+    
+    Args:
+        busy_intervals (List[Dict[str, str]], optional):
+            Список занятых временных интервалов.
+            По-умолчанию берется из BUSY_INTERVALS_PACK.
+        work_start (datetime, optional):
+            Время начала рабочего дня. 
+            По-умолчанию формируется из WORK_START.
+        work_end (datetime, optional):
+            Время окончания рабочего дня.
+            По-умолчанию формируется из WORK_END.
+        window_size (int, optional):
+            Длительность свободных окон в минутах. 
+            По-умолчанию берется из MINUTE_WINDOW_SIZE.
+    """
 
-    work_start_convert_dt = datetime.strptime(work_start, '%H:%M')
-    work_end_convert_dt = datetime.strptime(work_end, '%H:%M')
-    busy_intervals_convert_dt = [
-        (
-            datetime.strptime(interval['start'], TIME_FORMATTER),
-            datetime.strptime(interval['stop'], TIME_FORMATTER)
-        ) for interval in busy_intervals
-    ]
-    free_windows_list = [
-        {
-            'start': current_time.strftime(TIME_FORMATTER),
-            'stop': (
-                current_time + timedelta(
-                    minutes=window_size
-                )).strftime(TIME_FORMATTER)
-        }
-        for current_time in (
-            work_start_convert_dt + timedelta(minutes=i)
-            for i in range(
-                0,
-                (
-                    work_end_convert_dt -
-                    work_start_convert_dt
-                ).seconds // SECONDS_IN_MINUTE,
-                window_size
-            )
-        ) if not any(
-            start <= current_time < stop
-            or current_time <= start < current_time + timedelta(
-                minutes=window_size
-            )
-            for start, stop in busy_intervals_convert_dt
-        )
-    ]
-
-    return free_windows_list
+    busy_intervals_convert = convert_busy_intervals(busy_intervals)
+    free_windows = generate_free_windows(
+        work_start,
+        work_end,
+        window_size,
+        busy_intervals_convert
+    )
+    return free_windows
 
 
 if __name__ == '__main__':
-    free_window_list = get_reception_windows(
-        busy_intervals=BUSY_INTERVALS_PACK,
-        work_start=WORK_START,
-        work_end=WORK_END,
-        window_size=MINUTE_WINDOW_SIZE
-    )
+    free_window_list = get_reception_windows()
     for window in free_window_list:
         print(
             RUSULT_MESSAGE.format(
