@@ -43,11 +43,11 @@ def convert_busy_intervals(
 
 
 def generate_free_windows(
-    work_start,
-    work_end,
-    window_size,
-    busy_intervals_convert_dt
-):
+    work_start: datetime,
+    work_end: datetime,
+    window_size: int,
+    busy_intervals_convert_dt: List[tuple[datetime, datetime]]
+) -> List[Dict[str, str]]:
 
     """Генерация свободных окон в заданном временном диапазоне.
     
@@ -83,13 +83,26 @@ def generate_free_windows(
 
 
 def generate_time_range(
-    time_work_start,
-    time_work_end,
-    duration_window
-):
+    time_work_start: datetime,
+    time_work_end: datetime,
+    duration_window: int
+) -> List[datetime]:
 
     """Генерация интервалов с шагом window_size в заданном временном 
     диапазоне.
+
+    Args:
+        time_work_start (datettime):
+            начальное время в диапазоне.
+        time_work_end (datetime):
+            Конечное время в диапазоне.
+        duration_window (int):
+            Шаг в минутах до следующего интервала.
+    
+    Returns:
+        List[datetime]:
+            Список с интервалами в пределах всего рабочего дня с шагом
+            duration_window.
     """
 
     return [
