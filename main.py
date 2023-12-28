@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import List, Dict
 
 
 BUSY_TIME_START = ('10:30', '18:40', '14:40', '16:40', '20:05')
@@ -15,10 +16,20 @@ RUSULT_MESSAGE = 'Свободное окно с {start} до {stop}'
 TIME_FORMATTER = '%H:%M'
 
 
-def convert_busy_intervals(busy_intervals):
+def convert_busy_intervals(
+    busy_intervals: List[Dict[str, str]]
+) -> List[tuple[datetime, datetime]]:
 
     """Конвертирование временных интервалов из формата строки
     в формат datetime.
+
+    Args:
+        busy_intervals (List[Dict[str, str]]):
+            Список временных интервалов в строковом представлении.
+    
+    Returns:
+        List[tuple[datetime, datetime]]:
+            Список временных интервалов в виде объектов datetime
     """
 
     return list(
@@ -56,7 +67,11 @@ def generate_free_windows(
     ]
 
 
-def generate_time_range(time_work_start, time_work_end, duration_window):
+def generate_time_range(
+    time_work_start,
+    time_work_end,
+    duration_window
+):
 
     """Генерация интервалов с шагом window_size в заданном временном 
     диапазоне.
