@@ -115,12 +115,26 @@ def generate_time_range(
 
 
 def is_time_in_busy_intervals(
-    current_time,
-    busy_intervals_convert_dt,
-    window_size
-):
+    current_time: datetime,
+    busy_intervals_convert_dt: List(Dict[datetime, datetime]),
+    window_size: int
+) -> bool:
 
-    """Проверяет, находится ли текущее время в занятых временных интервалах."""
+    """Проверяет, находится ли текущее время в занятых временных интервалах.
+    
+    Args:
+        current_time (datetime):
+            Текущее время из временных интервалов.
+        busy_intervals_convert_dt (List[Dict[datetime, datetime]]):
+            Занятые временные интервалы.
+        window_size (int):
+            Длительность свободных окон в минутах.
+    
+    Returns:
+        bool:
+            True, если текущее время из временных интервалов пересекается
+            с занятыми интервалами.
+    """
     
     return any(
         start <= current_time < stop
